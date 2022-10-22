@@ -1,5 +1,13 @@
 data_config:
     data_loc: "data"
+    mean:
+        - 0.5
+        - 0.5
+        - 0.5
+    std:
+        - 0.5
+        - 0.5
+        - 0.5
 
 train_parameters:
     batch_size: 32
