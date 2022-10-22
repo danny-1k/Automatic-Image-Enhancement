@@ -7,6 +7,12 @@ import data_utils
 
 from transforms import train_t, test_t
 
+import yaml
+
+config = yaml.load(open('config.yml', 'r').read(), loader=yaml.Loader)
+
+data_config = config['data_config']
+
 
 class ImageData(Dataset):
     def __init__(self, random_state=34, train=True, tratio=.8):
@@ -15,10 +21,10 @@ class ImageData(Dataset):
         self.seed()
 
         try:
-            labels = os.listdir('data')
+            labels = os.listdir(data_config['data_loc'])
         except FileNotFoundError:
             print('`data directory` does not exist... Creating')
-            os.makedirs('data')
+            os.makedirs(data_config['data_loc'])
 
 
         if labels == []:
@@ -30,9 +36,9 @@ class ImageData(Dataset):
 
 
         for label in labels:
-            for f in os.listdir(os.path.join('data', label)):
+            for f in os.listdir(os.path.join(data_config['data_loc'], label)):
                 
-                path = os.path.join('data', label, f)
+                path = os.path.join(data_config['data_loc'], label, f)
 
                 files.append(path)
 
