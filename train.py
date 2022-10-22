@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.tensorboard import SummaryWriter
 import yaml
 
 from tqdm import tqdm
@@ -14,7 +15,7 @@ import argparse
 from models import fetch_model
 
 
-def train(model_name, device, train_config, test_config):
+def train(model_name, device, train_config, test_config, writer):
 
 
     traindata = ImageData(train=True)
@@ -37,6 +38,7 @@ def train(model_name, device, train_config, test_config):
 
     lossfn = nn.MSELoss()
 
+
     for epoch in tqdm(range(train_config['epochs'])):
 
         net.train()
@@ -49,6 +51,8 @@ def train(model_name, device, train_config, test_config):
 
             p = net(x, label)
             loss = lossfn(p, y)
+
+            writer.add_scalar('Loss/train', loss.item())
 
             optimizer.zero_grad()
             loss.backward()
@@ -66,6 +70,9 @@ def train(model_name, device, train_config, test_config):
                 p = net(x, label)
                 loss = lossfn(p, y)
 
+                writer.add_scalar('Loss/test', loss.item())
+
+
 
         print(f'Epoch : {epoch + 1} test_loss : {loss.item()}')
 
@@ -82,8 +89,14 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Train script')
     parser.add_argument('--model_name', required=True, help='Model name. Should be in the config.yml')
+    parser.add_argument('--run_name', required=True)
+
     args = parser.parse_args()
 
     model_name = args.model_name
+    run_name = args.run_name
+
+    writer = SummaryWriter("runs/{run_name}")
+
 
     train(model_name=model_name, train_config=trainconfig, test_config=testconfig, device=device)
