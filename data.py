@@ -9,7 +9,7 @@ from transforms import train_t, test_t
 
 import yaml
 
-config = yaml.load(open('config.yml', 'r').read(), loader=yaml.Loader)
+config = yaml.load(open('config.yml', 'r').read(), Loader=yaml.Loader)
 
 data_config = config['data_config']
 
