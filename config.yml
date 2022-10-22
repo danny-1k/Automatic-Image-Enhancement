@@ -1,3 +1,6 @@
+data_config:
+    data_loc: "data"
+
 train_parameters:
     batch_size: 32
     lr: 0.0003
