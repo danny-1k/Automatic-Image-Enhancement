@@ -9,25 +9,25 @@ def read_img(img):
 
 def adjust_brightness(img, value):
     filter = ImageEnhance.Brightness(img)
-    img = filter(value)
+    img = filter.enhance(value)
 
     return img, value
 
 def adjust_contrast(img, value):
     filter = ImageEnhance.Contrast(img)
-    img = filter(value)
+    img = filter.enhance(value)
 
     return img, value
 
 def adjust_saturation(img, value):
     filter = ImageEnhance.Color(img)
-    img = filter(value)
+    img = filter.enhance(value)
 
     return img, value
 
 def adjust_sharpness(img, value):
     filter = ImageEnhance.Sharpness(img)
-    img = filter(value)
+    img = filter.enhance(value)
 
     return img, value
 
