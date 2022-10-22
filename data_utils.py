@@ -5,7 +5,7 @@ import numpy as np
 def read_img(img):
     img = Image.open(img)
 
-    return 
+    return img
 
 def adjust_brightness(img, value):
     filter = ImageEnhance.Brightness(img)
