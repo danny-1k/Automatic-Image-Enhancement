@@ -30,6 +30,8 @@ class ImageData(Dataset):
         if labels == []:
             raise ValueError('No data in `data` directory')
 
+        self.labels = labels
+
         self.label_to_idx = {label:idx for idx,label in enumerate(labels)}
 
         files = []
@@ -63,16 +65,18 @@ class ImageData(Dataset):
     def __getitem__(self, idx):
         x, label = self.files[idx]
 
-        label_enc = self.label_to_idx[label]
+        label = self.label_to_idx[label]
 
         x = data_utils.read_img(x)
+
+        x, y = data_utils.random_manipulation(x)
         
         x = self.transforms(x)
 
-        labels = torch.Tensor(label_enc)/2 #normalize
+        y = torch.Tensor(y)/2 #normalize
 
 
-        return x, label_enc, labels
+        return x, label, y
 
 
     def seed(self):
