@@ -14,8 +14,13 @@ import argparse
 
 from models import fetch_model
 
+import os
+
 
 def train(model_name, device, train_config, test_config, writer, run_name):
+
+    if not os.path.exists('models'):
+        os.makedirs('models')
 
     try:
         train_config = train_config['models'][model_name]
