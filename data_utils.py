@@ -4,7 +4,7 @@ import numpy as np
 
 def read_img(img):
     img = Image.open(img)
-
+    img = img.convert('RGB') #ensure image is RGB
     return img
 
 def adjust_brightness(img, value):
