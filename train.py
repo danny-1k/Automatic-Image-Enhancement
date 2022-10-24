@@ -105,4 +105,4 @@ if __name__ == '__main__':
     writer = SummaryWriter("runs/{run_name}")
 
 
-    train(model_name=model_name, train_config=trainconfig, test_config=testconfig, device=device,  run_name=run_name)
+    train(model_name=model_name, train_config=trainconfig,writer=writer, test_config=testconfig, device=device,  run_name=run_name)
