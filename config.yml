@@ -5,10 +5,10 @@ data_config:
     img_size: [256, 256]
 
 train_parameters:
-    batch_size: 32
+    batch_size: 1
     models:
         baseline:
-            lr: 0.0003
+            lr: 0.00005
             epochs: 100
     
 test_parameters:
