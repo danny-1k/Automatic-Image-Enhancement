@@ -38,13 +38,8 @@ class AutoCorrectorBaseLine(NetBase):
         self.conv_layers = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=32, kernel_size=7),
             nn.ReLU(),
+            nn.MaxPool2d(2, 2),
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=7),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=7),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=7),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
@@ -52,7 +47,7 @@ class AutoCorrectorBaseLine(NetBase):
         self.label_embed = nn.Embedding(num_embeddings=num_labels, embedding_dim=50)
 
         self.pre_regression_layers = nn.Sequential(
-            nn.Linear(128*26*26, 1024),
+            nn.Linear(64*59*59, 1024),
             nn.ReLU()
         )
 
