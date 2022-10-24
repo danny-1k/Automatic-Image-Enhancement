@@ -84,6 +84,8 @@ def train(model_name, device, train_config, test_config, writer, run_name):
             with torch.no_grad():
                 for x, label, y in test:
 
+                    test_iterations += 1
+
                     x = x.to(device)
                     label = label.to(device).long()
                     y = y.to(device)
