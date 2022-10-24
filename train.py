@@ -19,8 +19,6 @@ import os
 
 def train(model_name, device, train_config, test_config, writer, run_name):
 
-    if not os.path.exists('models'):
-        os.makedirs('models')
 
     try:
         train_config = train_config['models'][model_name]
@@ -28,6 +26,10 @@ def train(model_name, device, train_config, test_config, writer, run_name):
 
     except:
         raise ValueError(f'Configuration for model `{model_name}` does not exist')
+
+    
+    if not os.path.exists(f'models/{model_name}/{run_name}'):
+        os.makedirs(f'models/{model_name}/{run_name}')
 
     traindata = ImageData(train=True)
     testdata = ImageData(train=False)
