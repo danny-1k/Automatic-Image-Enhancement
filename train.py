@@ -17,6 +17,12 @@ from models import fetch_model
 
 def train(model_name, device, train_config, test_config, writer, run_name):
 
+    try:
+        train_config = train_config['models'][model_name]
+        test_config = test_config['models'][model_name]
+
+    except:
+        raise ValueError(f'Configuration for model `{model_name}` does not exist')
 
     traindata = ImageData(train=True)
     testdata = ImageData(train=False)
@@ -28,10 +34,6 @@ def train(model_name, device, train_config, test_config, writer, run_name):
 
     net.to(device)
 
-    try:
-        train_config = train_config['models'][model_name]
-    except:
-        raise ValueError(f'Configuration for model `{model_name}` does not exist')
 
     optimizer = Adam(net.parameters(), lr=train_config['lr'])
     scheduler = ReduceLROnPlateau(optimizer)
