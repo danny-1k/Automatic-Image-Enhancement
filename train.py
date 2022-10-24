@@ -15,7 +15,7 @@ import argparse
 from models import fetch_model
 
 
-def train(model_name, device, train_config, test_config, writer):
+def train(model_name, device, train_config, test_config, writer, run_name):
 
 
     traindata = ImageData(train=True)
@@ -37,6 +37,8 @@ def train(model_name, device, train_config, test_config, writer):
     scheduler = ReduceLROnPlateau(optimizer)
 
     lossfn = nn.MSELoss()
+
+    highest_loss = float('inf')
 
 
     for epoch in tqdm(range(train_config['epochs'])):
@@ -73,6 +75,10 @@ def train(model_name, device, train_config, test_config, writer):
                 writer.add_scalar('Loss/test', loss.item())
 
 
+        if loss < highest_loss:
+            torch.save(net.state_dict(), f'models/{model_name}/{run_name}')
+
+
 
         print(f'Epoch : {epoch + 1} test_loss : {loss.item()}')
 
@@ -99,4 +105,4 @@ if __name__ == '__main__':
     writer = SummaryWriter("runs/{run_name}")
 
 
-    train(model_name=model_name, train_config=trainconfig, test_config=testconfig, device=device)
+    train(model_name=model_name, train_config=trainconfig, test_config=testconfig, device=device,  run_name=run_name)
