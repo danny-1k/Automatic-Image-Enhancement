@@ -40,31 +40,21 @@ def train(model_name, device, train_config, test_config, writer, run_name):
 
     highest_loss = float('inf')
 
+    train_iterations = 0
+    test_iterations = 0
+
+
 
     for epoch in tqdm(range(train_config['epochs'])):
 
-        net.train()
+        try:
 
-        for x, label, y in train:
-            
-            x = x.to(device)
-            label = label.to(device).long()
-            y = y.to(device)
+            net.train()
 
-            p = net(x, label)
-            loss = lossfn(p, y)
+            for x, label, y in train:
 
-            writer.add_scalar('Loss/train', loss.item())
-
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            scheduler.step(loss)
-
-        net.eval()
-        with torch.no_grad():
-            for x, label, y in test:
-
+                train_iterations += 1
+                
                 x = x.to(device)
                 label = label.to(device).long()
                 y = y.to(device)
@@ -72,15 +62,40 @@ def train(model_name, device, train_config, test_config, writer, run_name):
                 p = net(x, label)
                 loss = lossfn(p, y)
 
-                writer.add_scalar('Loss/test', loss.item())
+
+                writer.add_scalar('Loss/train', loss.item(), train_iterations)
+
+                optimizer.zero_grad()
+                loss.backward()
+
+                optimizer.step()
+                scheduler.step(loss)
+
+            net.eval()
+            with torch.no_grad():
+                for x, label, y in test:
+
+                    x = x.to(device)
+                    label = label.to(device).long()
+                    y = y.to(device)
+
+                    p = net(x, label)
+                    loss = lossfn(p, y)
+
+                    writer.add_scalar('Loss/test', loss.item(), test_iterations)
 
 
-        if loss < highest_loss:
-            torch.save(net.state_dict(), f'models/{model_name}/{run_name}')
+            if loss < highest_loss:
+                torch.save(net.state_dict(), f'models/{model_name}/{run_name}')
 
 
 
-        print(f'Epoch : {epoch + 1} test_loss : {loss.item()}')
+            print(f'Epoch : {epoch + 1} test_loss : {loss.item()}')
+
+        except KeyboardInterrupt:
+            writer.close()
+    
+    writer.close()
 
 
 
