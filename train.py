@@ -95,7 +95,7 @@ def train(model_name, device, train_config, test_config, writer, run_name):
 
 
             if loss < highest_loss:
-                torch.save(net.state_dict(), f'models/{model_name}/{run_name}')
+                torch.save(net.state_dict(), f'models/{model_name}/{run_name}/best.pt')
 
 
 
