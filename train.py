@@ -102,7 +102,7 @@ if __name__ == '__main__':
     model_name = args.model_name
     run_name = args.run_name
 
-    writer = SummaryWriter("runs/{run_name}")
+    writer = SummaryWriter(f"runs/{run_name}")
 
 
     train(model_name=model_name, train_config=trainconfig,writer=writer, test_config=testconfig, device=device,  run_name=run_name)
