@@ -49,20 +49,18 @@ def train(model_name, device, train_config, test_config, writer, run_name):
 
     highest_loss = float('inf')
 
-    train_iterations = 0
-    test_iterations = 0
-
-
 
     for epoch in tqdm(range(train_config['epochs'])):
+        
+        train_loss_epoch = []
+        test_loss_epoch = []
+        
 
         try:
 
             net.train()
 
             for x, label, y in train:
-
-                train_iterations += 1
                 
                 x = x.to(device)
                 label = label.to(device).long()
@@ -70,21 +68,20 @@ def train(model_name, device, train_config, test_config, writer, run_name):
 
                 p = net(x, label)
                 loss = lossfn(p, y)
-
-
-                writer.add_scalar('Loss/train', loss.item(), train_iterations)
+                
+                train_loss_epoch.append(loss.item())
 
                 optimizer.zero_grad()
                 loss.backward()
 
                 optimizer.step()
                 scheduler.step(loss)
+                
+            train_loss = sum(train_loss_epoch)/len(train_loss_epoch)
 
             net.eval()
             with torch.no_grad():
                 for x, label, y in test:
-
-                    test_iterations += 1
 
                     x = x.to(device)
                     label = label.to(device).long()
@@ -92,16 +89,21 @@ def train(model_name, device, train_config, test_config, writer, run_name):
 
                     p = net(x, label)
                     loss = lossfn(p, y)
-
-                    writer.add_scalar('Loss/test', loss.item(), test_iterations)
+                    
+                    test_loss_epoch.append(loss.item())
+                    
+            test_loss = sum(test_loss_epoch)/len(test_loss_epoch)
+            
+            
+            writer.add_scalar('Loss/train', train_loss, epoch+1)
+            writer.add_scalar('Loss/test', test_loss, epoch+1)
 
 
             if loss < highest_loss:
                 torch.save(net.state_dict(), f'models/{model_name}/{run_name}/best.pt')
 
 
-
-            print(f'Epoch : {epoch + 1} test_loss : {loss.item()}')
+            print(f'Epoch : {epoch + 1} train_loss : {train_loss} test_loss : {test_loss}')
 
         except KeyboardInterrupt:
             writer.close()
