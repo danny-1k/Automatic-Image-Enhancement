@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn 
+from torchvision.models.mobilenetv3 import mobilenet_v3_small
 
 
 class NetBase(nn.Module):
@@ -52,7 +53,9 @@ class AutoCorrectorBaseLine(NetBase):
         )
 
         self.reg_layers = nn.Sequential(
+            nn.Dropout(.5),
             nn.Linear(1024 + 50, 512),
+            nn.Dropout(.5),
             nn.ReLU(),
             nn.Linear(512, 4)      
         )
@@ -77,12 +80,56 @@ class AutoCorrectorBaseLine(NetBase):
         return self.reg_layers(x)
 
 
+class MobileNet(NetBase):
+    def __init__(self, num_labels=1):
+        super().__init__()
+
+        self.conv_layers = nn.Sequential(
+            mobilenet_v3_small(pretrained=True, requires_grad=False, eval=True).features,
+            nn.AdaptiveAvgPool2d(output_size=1),
+        )
+
+        self.label_embed = nn.Embedding(num_embeddings=num_labels, embedding_dim=50)
+
+        self.pre_regression_layers = nn.Sequential(
+            nn.Linear(576, 1024),
+            nn.ReLU(),
+            nn.Dropout(.2)
+        )
+
+        self.reg_layers = nn.Sequential(
+            nn.Linear(1024 + 50, 512),
+            nn.ReLU(),
+            nn.Dropout(.2),
+            nn.Linear(512, 4)      
+        )
+
+
+    def forward_image(self, x):
+        x = self.conv_layers(x)
+        x = x.view(x.shape[0], -1)
+        x = self.pre_regression_layers(x)
+        return x
+
+
+    def forward_label(self, label):
+        return self.label_embed(label)
+
+
+    def join_image_label(self, inter, label):
+        return torch.cat([inter, label], axis=1)
+
+
+    def regression(self, x):
+        return self.reg_layers(x)
 
 
 def fetch_model(name):
     name = name.lower()
     models = {
         'baseline': AutoCorrectorBaseLine,
+        'mobilenet': MobileNet,
+
     }
 
     for model_name in list(models.keys()):
