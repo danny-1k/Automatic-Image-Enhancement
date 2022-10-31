@@ -55,7 +55,7 @@ class AutoCorrectorBaseLine(NetBase):
         self.reg_layers = nn.Sequential(
             nn.Dropout(.5),
             nn.Linear(1024 + 50, 512),
-            nn.Dropout(.5),
+            nn.Dropout(.3),
             nn.ReLU(),
             nn.Linear(512, 4)      
         )
@@ -100,7 +100,7 @@ class MobileNet(NetBase):
         self.reg_layers = nn.Sequential(
             nn.Linear(1024 + 50, 512),
             nn.ReLU(),
-            nn.Dropout(.2),
+            nn.Dropout(.3),
             nn.Linear(512, 4)      
         )
 
