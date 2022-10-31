@@ -1,3 +1,6 @@
 __pycache__
 data
 *.zip
+sense.jpg
+tests.py
+predict.py
