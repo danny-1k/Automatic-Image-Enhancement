@@ -49,7 +49,7 @@ def random_manipulation(img):
     sharpness_adjustment = sharpness_value - 1
     
 
-    img, _ = adjust_brightness(img, brightness_valaue)
+    img, _ = adjust_brightness(img, brightness_value)
     img, _ = adjust_saturation(img, saturation_value)
     img, _ = adjust_contrast(img, contrast_value)
     img, _ = adjust_sharpness(img, sharpness_value)
