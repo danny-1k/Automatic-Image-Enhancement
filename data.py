@@ -26,14 +26,6 @@ class ImageData(Dataset):
             print('`data directory` does not exist... Creating')
             os.makedirs(data_config['data_loc'])
 
-
-        if labels == []:
-            raise ValueError('No data in `data` directory')
-
-        self.labels = labels
-
-        self.label_to_idx = {label:idx for idx,label in enumerate(labels)}
-
         files = []
 
 
@@ -42,7 +34,7 @@ class ImageData(Dataset):
                 
                 path = os.path.join(data_config['data_loc'], label, f)
 
-                files.append((path,label))
+                files.append(path)
 
         
         random.shuffle(files)
@@ -63,9 +55,7 @@ class ImageData(Dataset):
 
 
     def __getitem__(self, idx):
-        x, label = self.files[idx]
-
-        label = self.label_to_idx[label]
+        x = self.files[idx]
 
         x = data_utils.read_img(x)
 
@@ -73,10 +63,9 @@ class ImageData(Dataset):
         
         x = self.transforms(x)
 
-        y = torch.Tensor(y)/2 #normalize
+        y = torch.Tensor(y)
 
-
-        return x, label, y
+        return x, y
 
 
     def seed(self):
