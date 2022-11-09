@@ -15,6 +15,7 @@ train_t = transforms.Compose([
     transforms.Resize(img_size),
     transforms.RandomHorizontalFlip(.4),
     transforms.RandomVerticalFlip(.4),
+    transforms.RandomAffine(45),
     transforms.ToTensor(),
     transforms.Normalize(mean=mean, std=std),
 ])
