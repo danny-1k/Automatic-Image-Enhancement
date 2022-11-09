@@ -43,10 +43,19 @@ def random_manipulation(img):
     contrast_value = np.random.uniform(*CONTRAST)
     sharpness_value = np.random.uniform(*SHARPNESS)
 
-    brightness_adjustment = brightness_value - 1
-    saturation_adjustment = saturation_value - 1
-    contrast_adjustment = contrast_value - 1
-    sharpness_adjustment = sharpness_value - 1
+    brightness_adjustment = brightness_value - NORMAL_BRIGHTNESS
+    saturation_adjustment = saturation_value - NORMAL_SATURATION
+    contrast_adjustment = contrast_value - NORMAL_CONTRAST
+    sharpness_adjustment = sharpness_value - NORMAL_SHARPNESS
+
+
+    #normalize between 0 and 1
+
+    brightness_adjustment = (brightness_adjustment-MIN_BRIGHTNESS_LABEL)/(MAX_BRIGHTNESS_LABEL-MIN_BRIGHTNESS_LABEL)
+    saturation_adjustment = (saturation_adjustment-MIN_SATURATION_LABEL)/(MAX_SATURATION_LABEL-MIN_SATURATION_LABEL)
+    contrast_adjustment = (contrast_adjustment-MIN_CONTRAST_LABEL)/(MAX_CONTRAST_LABEL-MIN_CONTRAST_LABEL)
+    sharpness_adjustment = (sharpness_adjustment-MIN_SHARPNESS_LABEL)/(MAX_SHARPNESS_LABEL-MIN_SHARPNESS_LABEL)
+
     
 
     img, _ = adjust_brightness(img, brightness_value)
