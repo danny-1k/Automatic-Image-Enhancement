@@ -1,116 +1,10 @@
+import os
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
-from torch.optim import Adam
-from torch.optim.lr_scheduler import ReduceLROnPlateau
-from torch.utils.tensorboard import SummaryWriter
 import yaml
-
-from tqdm import tqdm
-
-from data import ImageData
-
 import argparse
-
 from models import fetch_model
-
-import os
-
-
-def train(model_name, device, train_config, test_config, writer, run_name):
-
-
-    try:
-        train_config = train_config['models'][model_name]
-        test_config = test_config['models'][model_name]
-
-    except:
-        raise ValueError(f'Configuration for model `{model_name}` does not exist')
-
-    
-    if not os.path.exists(f'models/{model_name}/{run_name}'):
-        os.makedirs(f'models/{model_name}/{run_name}')
-
-    traindata = ImageData(train=True)
-    testdata = ImageData(train=False)
-
-    train = DataLoader(traindata, batch_size=train_config['batch_size'], shuffle=True)
-    test = DataLoader(testdata, batch_size=test_config['batch_size'], shuffle=True)
-
-    net = fetch_model(model_name)(num_labels=len(testdata.labels))
-
-    net.to(device)
-
-
-    optimizer = Adam(net.parameters(), lr=train_config['lr'])
-    scheduler = ReduceLROnPlateau(optimizer)
-
-    lossfn = nn.MSELoss()
-
-    highest_loss = float('inf')
-
-
-    for epoch in tqdm(range(train_config['epochs'])):
-        
-        train_loss_epoch = []
-        test_loss_epoch = []
-        
-
-        try:
-
-            net.train()
-
-            for x, label, y in train:
-                
-                x = x.to(device)
-                label = label.to(device).long()
-                y = y.to(device)
-
-                p = net(x, label)
-                loss = lossfn(p, y)
-                
-                train_loss_epoch.append(loss.item())
-
-                optimizer.zero_grad()
-                loss.backward()
-
-                optimizer.step()
-                scheduler.step(loss)
-                
-            train_loss = sum(train_loss_epoch)/len(train_loss_epoch)
-
-            net.eval()
-            with torch.no_grad():
-                for x, label, y in test:
-
-                    x = x.to(device)
-                    label = label.to(device).long()
-                    y = y.to(device)
-
-                    p = net(x, label)
-                    loss = lossfn(p, y)
-                    
-                    test_loss_epoch.append(loss.item())
-                    
-            test_loss = sum(test_loss_epoch)/len(test_loss_epoch)
-            
-            
-            writer.add_scalar('Loss/train', train_loss, epoch+1)
-            writer.add_scalar('Loss/test', test_loss, epoch+1)
-
-
-            if loss < highest_loss:
-                torch.save(net.state_dict(), f'models/{model_name}/{run_name}/best.pt')
-
-
-            print(f'Epoch : {epoch + 1} train_loss : {train_loss} test_loss : {test_loss}')
-
-        except KeyboardInterrupt:
-            writer.close()
-    
-    writer.close()
-
-
+from trainer import Trainer
 
 
 if __name__ == '__main__':
@@ -130,7 +24,17 @@ if __name__ == '__main__':
     model_name = args.model_name
     run_name = args.run_name
 
-    writer = SummaryWriter(f"runs/{run_name}")
+    trainconfig = trainconfig[model_name]
+    testconfig = testconfig[model_name]
+
+    trainer_params = {
+        'device':device,
+        'lossfn': nn.MSELoss(),
+        'run_name': run_name,
+        'model': fetch_model(model_name)()
+    }
 
 
-    train(model_name=model_name, train_config=trainconfig,writer=writer, test_config=testconfig, device=device,  run_name=run_name)
+    t = Trainer(trainconfig, testconfig, trainer_params)
+
+    t.run()
