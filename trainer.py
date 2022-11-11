@@ -78,8 +78,14 @@ class Trainer:
 
 
     def tb_write_metrics(self, epoch):
-        self.writer.add_scalar('Loss/train', self.metrics['train_loss'], epoch)
-        self.writer.add_scalar('Loss/test', self.metrics['test_loss'], epoch)
+        self.writer.add_scalars(
+            main_tag='Loss',
+            tag_scalar_dict={
+                'train': self.metrics['train_loss'],
+                'test': self.metrics['test_loss']
+            },
+            global_step=epoch
+        )
 
     
     def tb_close_writer(self):
