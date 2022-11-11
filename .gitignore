@@ -3,3 +3,4 @@ data
 *.zip
 sense.jpg
 predict.py
+run_tracker
