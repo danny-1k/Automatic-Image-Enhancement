@@ -1,4 +1,5 @@
 import os
+import pickle
 import torch
 from torch.utils.data import DataLoader
 from torch.optim import Adam
@@ -92,6 +93,14 @@ class Trainer:
     def run(self, traindata=None, testdata=None):
         if not os.path.exists(f'models/{self.model_name}/{self.run_name}'):
             os.makedirs(f'models/{self.model_name}/{self.run_name}')
+
+        if not os.path.exists(f'run_tracker/{self.model_name}/{self.run_name}'):
+            os.makedirs(f'run_tracker/{self.model_name}/{self.run_name}')
+
+        pickle.dump(self.train_config, open(f'run_tracker/{self.model_name}/{self.run_name}/train_config.pkl', 'wb'))
+        pickle.dump(self.test_config, open(f'run_tracker/{self.model_name}/{self.run_name}/test_config.pkl', 'wb'))
+        pickle.dump(self.trainer_params, open(f'run_tracker/{self.model_name}/{self.run_name}/trainer_params.pkl', 'wb'))
+
 
 
         traindata = traindata or ImageData(train=True)
