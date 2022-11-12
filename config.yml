@@ -10,10 +10,18 @@ train_parameters:
             lr: 0.00001
             epochs: 100
             batch_size: 8
+
+        smallnet:
+            lr: 0.00001
+            epochs: 100
+            batch_size: 16
                 
     
 test_parameters:
     models:
         baseline:
             batch_size: 8
+
+        smallnet:
+            batch_size: 16
     
