@@ -6,6 +6,6 @@ from models import fetch_model
 x = torch.zeros((1, 3, 256, 256))
 n = AutoCorrectorBaseLine()
 
-print(n(x, torch.Tensor([0]).long()))
+print(n(x))
 
 print(fetch_model('autosomthing baseline'))
