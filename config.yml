@@ -7,13 +7,13 @@ data_config:
 train_parameters:
     models:
         baseline:
-            lr: 0.00005
+            lr: 0.00001
             epochs: 100
-            batch_size: 32
+            batch_size: 8
                 
     
 test_parameters:
     models:
         baseline:
-            batch_size: 32
+            batch_size: 8
     
