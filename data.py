@@ -30,6 +30,7 @@ class ImageData(Dataset):
 
 
         for label in labels:
+            if label != 'unsplash': continue
             for f in os.listdir(os.path.join(data_config['data_loc'], label)):
                 
                 path = os.path.join(data_config['data_loc'], label, f)
