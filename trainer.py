@@ -1,4 +1,5 @@
 import os
+import shutil
 import pickle
 import torch
 from torch.utils.data import DataLoader
@@ -92,8 +93,9 @@ class Trainer:
         self.writer.close()
 
     def save_best(self):
-        if self.metrics['best_loss'] < self.metrics['test_loss']:
+        if self.metrics['test_loss'] < self.metrics['best_loss']:
             torch.save(self.model.state_dict(), f'models/{self.model_name}/{self.run_name}/best.pt')
+            self.metrics['best_loss'] = self.metrics['test_loss']
         
 
     def run(self, traindata=None, testdata=None):
@@ -106,6 +108,7 @@ class Trainer:
         pickle.dump(self.train_config, open(f'run_tracker/{self.model_name}/{self.run_name}/train_config.pkl', 'wb'))
         pickle.dump(self.test_config, open(f'run_tracker/{self.model_name}/{self.run_name}/test_config.pkl', 'wb'))
         pickle.dump(self.trainer_params, open(f'run_tracker/{self.model_name}/{self.run_name}/trainer_params.pkl', 'wb'))
+        shutil.copy('config.yml', f'run_tracker/{self.model_name}/{self.run_name}/config.yml')
 
 
 
