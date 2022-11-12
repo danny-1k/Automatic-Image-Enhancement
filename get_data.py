@@ -1,9 +1,14 @@
 import os
 import requests
 import pandas as pd
-
+import yaml
 from concurrent.futures import ThreadPoolExecutor
 
+from PIL import Image
+
+Image.frombytes()
+
+config = yaml.load(open('config.yml', 'r').read(), loader=yaml.Loader)['data_config']
 
 def download_photo(url, dataset):
     to = f"data/{dataset}/{url.split('/')[-1]}.jpg"
@@ -14,7 +19,7 @@ def download_photo(url, dataset):
 
             r = requests.get(url, allow_redirects=True)
             #h = r.headers
-            data = r.content
+            data = Image.frombuffer(size=(config['img_size'][0], config['img_size'][1]), mode='RGB', data=r.content).tobytes()
 
             with open(to, 'wb') as f:
                 f.write(data)
