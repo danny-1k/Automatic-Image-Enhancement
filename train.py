@@ -24,8 +24,8 @@ if __name__ == '__main__':
     model_name = args.model_name
     run_name = args.run_name
 
-    trainconfig = trainconfig[model_name]
-    testconfig = testconfig[model_name]
+    trainconfig = trainconfig['models'][model_name]
+    testconfig = testconfig['models'][model_name]
 
     trainer_params = {
         'device':device,
