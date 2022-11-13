@@ -37,7 +37,7 @@ def random_manipulation(img):
     # we want the model to correct images that are in the specified ranges in `CONSTANTS.py`
     # the correction will be added to the original values of the image
 
-    if np.random.rand() > .5: # sometimes let it predict normal images
+    if np.random.rand() > .6: # sometimes let it predict normal images
 
         brightness_value = 1
         saturation_value = 1
