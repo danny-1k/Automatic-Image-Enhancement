@@ -12,9 +12,9 @@ train_parameters:
             batch_size: 8
 
         smallnet:
-            lr: 0.00001
-            epochs: 100
-            batch_size: 16
+            lr: 0.001
+            epochs: 200
+            batch_size: 32
                 
     
 test_parameters:
@@ -23,5 +23,5 @@ test_parameters:
             batch_size: 8
 
         smallnet:
-            batch_size: 16
+            batch_size: 32
     
