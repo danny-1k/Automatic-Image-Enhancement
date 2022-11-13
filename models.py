@@ -41,6 +41,164 @@ class AutoCorrectorBaseLine(nn.Module):
         return x
 
 
+class SmallNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(in_channels=3, out_channels=20, stride=3, kernel_size=7),
+            nn.ReLU(),
+
+            nn.Conv2d(in_channels=20, out_channels=30,  stride=3, kernel_size=7),
+            nn.ReLU(),
+
+            nn.Conv2d(in_channels=30, out_channels=38, stride=2, kernel_size=5),
+            nn.ReLU(),
+
+            nn.MaxPool2d(2,2),
+        )
+
+        self.fc = nn.Sequential(
+            nn.Linear(38*5*5, 1024),
+            nn.ReLU(), 
+            nn.Linear(1024, 256),
+            nn.ReLU(),
+            nn.Linear(256, 4)
+        )
+
+
+
+    def forward(self, x):
+        x = self.conv_layers(x)
+        x = x.view(x.shape[0], -1)
+        x = self.fc(x)
+
+        return x
+
+
+
+class Model1(nn.Module):
+    def __init__(self):
+        super().__init__()
+        
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=5),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=5),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+        )
+
+
+        self.pre_regression_layers = nn.Sequential(
+            nn.Linear(64*61*61, 4096),
+            nn.ReLU(),
+            nn.Linear(4069, 1024),
+            nn.ReLU()
+        )
+
+        self.reg_layers = nn.Sequential(
+            nn.Dropout(.5),
+            nn.Linear(1024, 512),
+            nn.Dropout(.3),
+            nn.ReLU(),
+            nn.Linear(512, 4)      
+        )
+
+    def forward(self, x):
+        x = self.conv_layers(x)
+        x = x.view(x.shape[0], -1)
+        x = self.pre_regression_layers(x)
+        x = self.reg_layers(x)
+
+
+
+class Model2(nn.Module):
+    def __init__(self):
+        super().__init__()
+        
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=5, stride=2,),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=5, stride=2),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+        )
+
+
+        self.pre_regression_layers = nn.Sequential(
+            nn.Linear(64*61*61, 4096),
+            nn.ReLU(),
+            nn.Linear(4069, 1024),
+            nn.ReLU()
+        )
+
+        self.reg_layers = nn.Sequential(
+            nn.Dropout(.5),
+            nn.Linear(1024, 512),
+            nn.Dropout(.3),
+            nn.ReLU(),
+            nn.Linear(512, 4)      
+        )
+
+    def forward(self, x):
+        x = self.conv_layers(x)
+        x = x.view(x.shape[0], -1)
+        x = self.pre_regression_layers(x)
+        x = self.reg_layers(x)
+
+
+class Model3(nn.Module):
+    def __init__(self):
+        super().__init__()
+        
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=5),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=5),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=5),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+        )
+
+
+        self.pre_regression_layers = nn.Sequential(
+            nn.Linear(64*61*61, 4096),
+            nn.ReLU(),
+            nn.Linear(4069, 1024),
+            nn.ReLU()
+        )
+
+        self.reg_layers = nn.Sequential(
+            nn.Dropout(.5),
+            nn.Linear(1024, 512),
+            nn.Dropout(.3),
+            nn.ReLU(),
+            nn.Linear(512, 4)      
+        )
+
+    def forward(self, x):
+        x = self.conv_layers(x)
+        x = x.view(x.shape[0], -1)
+        x = self.pre_regression_layers(x)
+        x = self.reg_layers(x)
+    
+
+
 class MobileNet(nn.Module):
     def __init__(self):
         super().__init__()
