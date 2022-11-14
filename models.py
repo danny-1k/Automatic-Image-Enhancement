@@ -6,7 +6,7 @@ from transforms import vgg_transform
 
 
 class ImageSelector:
-    def __init__(self, rho=.7) -> None:
+    def __init__(self, rho=.2) -> None:
         self.rho = rho
         self.transform = vgg_transform
         self.model = vgg16(pretrained=True).eval()
@@ -14,16 +14,23 @@ class ImageSelector:
 
     def predict(self, x):
 
-        x = self.transform(x)
+        x = self.transform(x).unsqueeze(0)
 
-        x = self.model(x)
+        x = self.model(x).softmax(1)
 
         return x
 
-    def is_a_good_image(self, x, single=True):
-        p = self.predict(x, ).topk(1).values()
+    def is_a_good_image(self, x):
+        p = self.predict(x).topk(1).values
 
-        is_good = (p>=self.rho).to_list()
+        print(p)
+
+        is_good = (p>=self.rho).tolist()
+
+        return is_good
+
+    def __call__(self, x):
+        return self.is_a_good_image(x)
         
 
 
