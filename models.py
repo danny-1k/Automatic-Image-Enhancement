@@ -1,6 +1,30 @@
 import torch
 import torch.nn as nn 
 from torchvision.models.mobilenetv3 import mobilenet_v3_small
+from torchvision.models import vgg16
+from transforms import vgg_transform
+
+
+class ImageSelector:
+    def __init__(self, rho=.7) -> None:
+        self.rho = rho
+        self.transform = vgg_transform
+        self.model = vgg16(pretrained=True).eval()
+        self.model.requires_grad_(False)
+
+    def predict(self, x):
+
+        x = self.transform(x)
+
+        x = self.model(x)
+
+        return x
+
+    def is_a_good_image(self, x, single=True):
+        p = self.predict(x, ).topk(1).values()
+
+        is_good = (p>=self.rho).to_list()
+        
 
 
 class AutoCorrectorBaseLine(nn.Module):
@@ -47,12 +71,15 @@ class SmallNet(nn.Module):
 
         self.conv_layers = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=20, stride=3, kernel_size=7),
+            nn.BatchNorm2d(20),
             nn.ReLU(),
 
             nn.Conv2d(in_channels=20, out_channels=30,  stride=3, kernel_size=7),
+            nn.BatchNorm2d(30),
             nn.ReLU(),
 
             nn.Conv2d(in_channels=30, out_channels=38, stride=2, kernel_size=5),
+            nn.BatchNorm2d(38),
             nn.ReLU(),
 
             nn.MaxPool2d(2,2),
@@ -61,8 +88,10 @@ class SmallNet(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(38*5*5, 1024),
             nn.ReLU(), 
+            nn.Dropout(.5),
             nn.Linear(1024, 256),
             nn.ReLU(),
+            nn.Dropout(.3),
             nn.Linear(256, 4)
         )
 
