@@ -1,8 +1,8 @@
 #Range of image augumentation for labels
-BRIGHTNESS = (.2, 1.8)
-SATURATION = (.4, 2)
-CONTRAST = (.4, 1.4)
-SHARPNESS = (-3, 3)
+BRIGHTNESS = (.1, 2)
+SATURATION = (.1, 2)
+CONTRAST = (.1, 2)
+SHARPNESS = (-4, 4)
 
 NORMAL_BRIGHTNESS = 1
 NORMAL_SATURATION = 1 
