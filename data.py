@@ -2,12 +2,14 @@ import torch
 import os
 from torch.utils.data import Dataset
 import random
-
 import data_utils
-
+import transforms
 from transforms import train_t, test_t
-
 import yaml
+import pandas as pd
+from sklearn.model_selection import train_test_split
+import cv2
+import numpy as np
 
 config = yaml.load(open('config.yml', 'r').read(), Loader=yaml.Loader)
 
@@ -71,3 +73,83 @@ class ImageData(Dataset):
 
     def seed(self):
         random.seed(self.random_state)
+
+
+class DeterDataset(Dataset):
+    def __init__(self,train=True, subset=-1):
+        self.train = train
+
+        if train:
+            self.df = pd.read_csv('data/generated/train.csv').iloc[:subset]
+            self.transforms = transforms.vgg_train_transform
+        else:
+            self.df = pd.read_csv('data/generated/test.csv').iloc[:subset]
+            self.transforms = transforms.vgg_transform
+            
+        
+    def __len__(self):
+        return len(self.df)
+
+
+    def __getitem__(self, idx):
+
+        point = self.df.iloc[idx]
+
+        x = point['img_id']
+
+        x = data_utils.read_img(f'data/generated/images/{x}.jpg')
+        x = self.transforms(x)
+        
+        brightness = point['brightness'].item()
+        saturation = point['saturation'].item()
+        contrast = point['contrast'].item()
+        sharpness = point['sharpness'].item()
+
+        y = torch.Tensor([brightness, saturation, contrast, sharpness])
+
+        return x, y
+
+
+class MaskData(Dataset):
+    def __init__(self, train=True, subset=-1):
+        super().__init__()
+
+        self.train = train
+
+        if train:
+            self.df = pd.read_csv('data/mask_data/train.csv').iloc[:subset]
+            self.transforms = transforms.vgg_train_transform
+        else:
+            self.df = pd.read_csv('data/generated/test.csv').iloc[:subset]
+            self.transforms = transforms.vgg_transform
+            
+
+    
+    def __len__(self):
+        return len(self.df)
+
+    
+    def __getitem__(self, idx):
+        point = self.df.iloc[idx]
+
+        aug_img_id = point['img_id']
+        original_img_path = point['original_img_path']
+
+
+        aug_img = data_utils.read_img(f'data/mask_data/images/{aug_img_id}.jpg')
+        original_img = data_utils.read_img(original_img_path)
+
+        x = self.transforms(aug_img)
+
+        # the label is the difference between channels in the orignal and augumented images for different colorspaces
+
+        aug_img_hsv = np.asarray(aug_img)
+        original_img_hsv = np.asarray(original_img)
+
+        saturation_difference_channel = (original_img_hsv[:, :, 1] - aug_img_hsv[:, :, 1])/2
+        brightness_difference_channel = (original_img_hsv[:, :, 2] - aug_img_hsv[:, :, 2])/255
+
+        y = torch.from_numpy(np.stack([brightness_difference_channel, saturation_difference_channel, ], axis=0))
+
+
+        return x, y
