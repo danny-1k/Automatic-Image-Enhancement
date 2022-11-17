@@ -23,8 +23,6 @@ class ImageSelector:
     def is_a_good_image(self, x):
         p = self.predict(x).topk(1).values
 
-        print(p)
-
         is_good = (p>=self.rho).tolist()
 
         return is_good
@@ -111,6 +109,127 @@ class SmallNet(nn.Module):
 
         return x
 
+
+class SmallNet2(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(in_channels=3, out_channels=40, stride=2, kernel_size=5, padding=2),
+            nn.BatchNorm2d(40),
+            nn.ReLU(),
+
+            nn.Conv2d(in_channels=40, out_channels=64,  stride=2, kernel_size=5, padding=2),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+
+            nn.MaxPool2d(2,2),
+
+
+            nn.Conv2d(in_channels=64, out_channels=128, stride=1, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+
+            nn.Conv2d(in_channels=128, out_channels=128, stride=1, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+
+            nn.MaxPool2d(2,2),
+        )
+
+        self.fc = nn.Sequential(
+            nn.Linear(128*14*14, 4096),
+            nn.ReLU(), 
+            nn.Dropout(.5),
+
+            nn.Linear(4096, 1024),
+            nn.ReLU(),
+            nn.Dropout(.3),
+
+            nn.Linear(1024, 256),
+            nn.ReLU(),
+            nn.Dropout(.2),
+
+            nn.Linear(256, 4)
+        )
+
+
+    def forward(self, x):
+        x = self.conv_layers(x)
+        x = x.view(x.shape[0], -1)
+        x = self.fc(x)
+
+        return x
+
+
+class LessSmallNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.block1 = nn.Sequential(
+            nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, padding=1),
+            nn.ReLU(),
+
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
+            nn.ReLU()
+
+        )
+
+        self.block2 = nn.Sequential(
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1),
+            nn.ReLU(),
+
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1),
+            nn.ReLU()
+        )
+
+
+        self.block3 = nn.Sequential(
+            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3),
+            nn.ReLU(),
+
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3),
+            nn.ReLU()
+        )
+
+
+        self.block4 = nn.Sequential(
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3),
+            nn.ReLU(),
+
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3),
+            nn.ReLU()
+        )
+
+
+        self.fc = nn.Sequential(
+            nn.Linear(256*11*11, 5160),
+            nn.ReLU(),
+            nn.Linear(5160, 4)
+        )
+
+        self.maxpool = nn.MaxPool2d(2,2)
+
+
+    def forward(self, x):
+
+        x = self.block1(x)
+        x = self.maxpool(x)
+
+        x = self.block2(x)
+        x = self.maxpool(x)
+
+        x = self.block3(x)
+        x = self.maxpool(x)
+
+        x = self.block4(x)
+        x = self.maxpool(x)
+        
+        x = x.view(x.shape[0], -1)
+
+        x = self.fc(x)
+
+        return x
 
 
 class Model1(nn.Module):
@@ -244,25 +363,13 @@ class MobileNet(nn.Module):
             nn.AdaptiveAvgPool2d(output_size=1),
         )
 
-        self.pre_regression_layers = nn.Sequential(
-            nn.Linear(576, 1024),
-            nn.ReLU(),
-            nn.Dropout(.2)
-        )
-
-        self.reg_layers = nn.Sequential(
-            nn.Linear(1024 + 50, 512),
-            nn.ReLU(),
-            nn.Dropout(.3),
-            nn.Linear(512, 4)      
-        )
-
+        self.fc = nn.Linear(576, 4)
 
     def forward(self, x):
         x = self.conv_layers(x)
+        print(x.shape)
         x = x.view(x.shape[0], -1)
-        x = self.pre_regression_layers(x)
-        x = self.reg_layers(x)
+        x = self.fc(x)
 
         return x
 
