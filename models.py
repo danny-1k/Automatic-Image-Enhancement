@@ -232,127 +232,6 @@ class LessSmallNet(nn.Module):
         return x
 
 
-class Model1(nn.Module):
-    def __init__(self):
-        super().__init__()
-        
-        self.conv_layers = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=5),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=5),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-
-
-        self.pre_regression_layers = nn.Sequential(
-            nn.Linear(64*61*61, 4096),
-            nn.ReLU(),
-            nn.Linear(4069, 1024),
-            nn.ReLU()
-        )
-
-        self.reg_layers = nn.Sequential(
-            nn.Dropout(.5),
-            nn.Linear(1024, 512),
-            nn.Dropout(.3),
-            nn.ReLU(),
-            nn.Linear(512, 4)      
-        )
-
-    def forward(self, x):
-        x = self.conv_layers(x)
-        x = x.view(x.shape[0], -1)
-        x = self.pre_regression_layers(x)
-        x = self.reg_layers(x)
-
-
-
-class Model2(nn.Module):
-    def __init__(self):
-        super().__init__()
-        
-        self.conv_layers = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=5, stride=2,),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=5, stride=2),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-
-
-        self.pre_regression_layers = nn.Sequential(
-            nn.Linear(64*61*61, 4096),
-            nn.ReLU(),
-            nn.Linear(4069, 1024),
-            nn.ReLU()
-        )
-
-        self.reg_layers = nn.Sequential(
-            nn.Dropout(.5),
-            nn.Linear(1024, 512),
-            nn.Dropout(.3),
-            nn.ReLU(),
-            nn.Linear(512, 4)      
-        )
-
-    def forward(self, x):
-        x = self.conv_layers(x)
-        x = x.view(x.shape[0], -1)
-        x = self.pre_regression_layers(x)
-        x = self.reg_layers(x)
-
-
-class Model3(nn.Module):
-    def __init__(self):
-        super().__init__()
-        
-        self.conv_layers = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=5),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=5),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-
-            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=5),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-
-
-        self.pre_regression_layers = nn.Sequential(
-            nn.Linear(64*61*61, 4096),
-            nn.ReLU(),
-            nn.Linear(4069, 1024),
-            nn.ReLU()
-        )
-
-        self.reg_layers = nn.Sequential(
-            nn.Dropout(.5),
-            nn.Linear(1024, 512),
-            nn.Dropout(.3),
-            nn.ReLU(),
-            nn.Linear(512, 4)      
-        )
-
-    def forward(self, x):
-        x = self.conv_layers(x)
-        x = x.view(x.shape[0], -1)
-        x = self.pre_regression_layers(x)
-        x = self.reg_layers(x)
-    
-
 
 class MobileNet(nn.Module):
     def __init__(self):
@@ -374,11 +253,147 @@ class MobileNet(nn.Module):
         return x
 
 
+class MapModel(nn.Module):
+    def __init__(self, output_channels=2):
+        super().__init__()
+
+        self.E1 = nn.Sequential(
+            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+        )
+
+        self.E2 = nn.Sequential(
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+
+        )
+        self.E3 = nn.Sequential(
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+
+        )
+        self.E4 = nn.Sequential(
+            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1),
+            nn.ReLU(),
+
+        )
+        self.E5 = nn.Sequential(
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1),
+            nn.ReLU(),
+
+        )
+
+
+        self.D1 = nn.Sequential(
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1),
+            nn.ReLU(),
+        )
+        self.D2 = nn.Sequential(
+            nn.Conv2d(in_channels=256, out_channels=128, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1),
+            nn.ReLU(),
+        )
+        self.D3 = nn.Sequential
+        (
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=128, out_channels=64, kernel_size=3, padding=1),
+            nn.ReLU(),
+        )
+        self.D4 = nn.Sequential(
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=64, out_channels=32, kernel_size=3, padding=1),
+            nn.ReLU(),
+        )
+        self.D5 = nn.Sequential(
+            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=32, out_channels=output_channels, kernel_size=3, padding=1),
+            nn.ReLU(),
+        )
+
+
+        self.E_maxpool = nn.MaxPool2d(2,2, return_indices=True)
+        self.D_maxpool = nn.MaxUnpool2d(2,2)
+
+
+    def forward(self, x):
+
+        # Encoder
+
+        size_1 = x.shape()[-2:]
+        x = self.E1(x)
+        ind1 = self.E_maxpool(x)
+
+        size_2 = x.shape()[-2:]
+        x = self.E2(x)
+        ind2 = self.E_maxpool(x)
+        
+        size_3 = x.shape()[-2:]
+        x = self.E3(x)
+        ind3 = self.E_maxpool(x)
+
+        size_4 = x.shape()[-2:]
+        x = self.E4(x)
+        ind4 = self.E_maxpool(x)
+
+        size_5 = x.shape()[-2:]
+        x = self.E5(x)
+        ind5 = self.E_maxpool(x)
+
+
+        # Decoder
+
+        x = self.D_maxpool(x, ind5, output_size=size_5)
+        x = self.D1(x)
+
+        x = self.D_maxpool(x, ind4, output_size=size_4)
+        x = self.D2(x)
+
+        x = self.D_maxpool(x, ind3, output_size=size_3)
+        x = self.D3(x)
+
+        x = self.D_maxpool(x, ind2, output_size=size_2)
+        x = self.D4(x)
+
+        x = self.D_maxpool(x, ind1, output_size=size_1)
+        x = self.D5(x)
+
+
+        return x
+
+
+
 def fetch_model(name):
     name = name.lower()
     models = {
         'baseline': AutoCorrectorBaseLine,
         'mobilenet': MobileNet,
+        'smallnet2': SmallNet2,
+        'smallnet': SmallNet,
+        'mapmodel': MapModel,
+        'map': MapModel,
+
 
     }
 
