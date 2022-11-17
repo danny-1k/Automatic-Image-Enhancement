@@ -1,10 +1,10 @@
 __pycache__
 data
 *.zip
-sense.jpg
+*.txt
+*.jpg
+*.png
 predict.py
 run_tracker
 test_selector.py
 todo.txt
-doggo.jpg
-corrected.jpg
