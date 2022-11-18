@@ -3,48 +3,69 @@ from models import ImageSelector
 from data_utils import read_img, random_manipulation
 import pandas as pd
 
+import string
+import random
 from concurrent.futures import ThreadPoolExecutor
 
 
 class DataGenerator:
-    def __init__(self, images_path, to_path, var_per_image, num_threads, max_samples):
+    def __init__(self, images_path, to_path, var_per_image, threads , max_samples, efficient=True):
+        self.efficient = efficient
         self.images_path = images_path
         self.to_path = to_path
         self.images_path = images_path
-        self.max_samples = max_samples
-        self.num_threads = num_threads
+        self.max_samples = int(max_samples) if max_samples else max_samples
+        self.threads = int(threads)
         self.num_sampled = 0
 
 
         self.var_per_image = var_per_image
 
-        self.image_selector = ImageSelector()
+        self.image_selector = ImageSelector(rho=0.2)
 
 
-        self.df = pd.DataFrame({}, columns=['img_id', 'brightness', 'saturation', 'contrast', 'sharpness'], index=['img_id'])
+        self.df = pd.DataFrame({}, columns=['img_id', 'original_img_path', 'brightness', 'saturation', 'contrast', 'sharpness'], index=['img_id'])
 
 
     def process_image(self, f):
-        img = read_img(f)
+        if (self.max_samples and (self.num_sampled < self.max_samples)) or not self.max_samples:
+            try:
+                img = read_img(f)
+                
+                for _ in  range(self.var_per_image):
 
-        for _ in  range(self.var_per_image):
+                    img_id = self.randid()
 
-            new_img, params = self.get_random_image(img)
+                    new_img, params = self.get_random_image(img)
 
-            new_img.save(f'{self.to_path}/images/{self.num_sampled}.jpg')
+                    if self.efficient:
+                        new_img = new_img.resize((256, 256))
 
-            self.df = self.df.append({
-                'img_id': self.num_sampled,
-                'brightness': params[0],
-                'saturation': params[1],
-                'contrast': params[2],
-                'sharpness': params[3]
-            })
+                    new_img.save(f'{self.to_path}/images/{img_id}.jpg')
 
-            self.num_sampled += 1
+                    self.df = self.df.append({
+                        'img_id': img_id,
+                        'original_img_path': f,
+                        'brightness': params[0],
+                        'saturation': params[1],
+                        'contrast': params[2],
+                        'sharpness': params[3]
+                    }, ignore_index=True)
 
-            if self.num_sampled >= self.max_samples:
-                break
+                    self.num_sampled += 1
+                    
+                    if self.num_sampled% 50 < 5:
+
+                        self.save()
+                        
+                self.save()
+
+                
+
+            except:
+                self.save()
+                # self.save()
+                # print('Stopped..')
 
 
     def get_random_image(self, img):
@@ -63,37 +84,49 @@ class DataGenerator:
     
     def run(self):
         if not os.path.exists(self.to_path):
-            os.makedirs(self.to_path)
+            os.makedirs(f'{self.to_path}/images')
+
         else:
-            assert os.listdir(self.to_path) == 0, f'There are already Images in {self.to_path}'
+            assert os.listdir(f'{self.to_path}/images') == [], f'There are already Images in {self.to_path}/images'
 
         img_paths = [os.path.join(self.images_path, f) for f in os.listdir(self.images_path)]
 
-        with ThreadPoolExecutor(max_workers=self.num_threads) as executor:
+
+        with ThreadPoolExecutor(max_workers=self.threads) as executor:
             executor.map(self.process_image, img_paths)
 
+
+        # for img in img_paths:
+        #     self.process_image(img)
+        #make dis shii fassstttttttttt
+        # dont try multiprocessing, too many issues
+
+        self.save()
+
+
+    def randid(self):
+        id = ''.join(random.choices(string.ascii_letters, k=10))
+        return id
+
+    def save(self):
         self.df.to_csv(f'{self.to_path}/data.csv')
 
+
+
     
-    #def create_threads(self):
-
-
-
-
-
 if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--images_path', default='data/unsplash')
-    parser.add_argument('--to_path', default='data/generated')
-    parser.add_argument('--threads', default=10)
-    parser.add_argument('--var_per_img', default=10)
-    parser.add_argument('--max_samples', default=None)
+    parser.add_argument('--threads', default=1)
+    parser.add_argument('--to_path', required=True)
+    parser.add_argument('--var_per_img', default=10, type=int)
+    parser.add_argument('--max_samples', default=None, type=int)
 
 
     args = parser.parse_args()
 
-    generator = DataGenerator(args.images_path, args.to_path, args.var_per_image, args.threads, args.max_samples)
+    generator = DataGenerator(args.images_path, args.to_path, args.var_per_img, args.threads, args.max_samples)
     generator.run()
