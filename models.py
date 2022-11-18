@@ -311,8 +311,7 @@ class MapModel(nn.Module):
             nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1),
             nn.ReLU(),
         )
-        self.D3 = nn.Sequential
-        (
+        self.D3 = nn.Sequential(
             nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1),
             nn.ReLU(),
             nn.Conv2d(in_channels=128, out_channels=64, kernel_size=3, padding=1),
@@ -340,42 +339,42 @@ class MapModel(nn.Module):
 
         # Encoder
 
-        size_1 = x.shape[-2:]
+        size_1 = x.size()
         x = self.E1(x)
-        ind1 = self.E_maxpool(x)
+        x, ind1 = self.E_maxpool(x)
 
-        size_2 = x.shape[-2:]
+        size_2 = x.size()
         x = self.E2(x)
-        ind2 = self.E_maxpool(x)
+        x, ind2 = self.E_maxpool(x)
         
-        size_3 = x.shape[-2:]
+        size_3 = x.size()
         x = self.E3(x)
-        ind3 = self.E_maxpool(x)
+        x, ind3 = self.E_maxpool(x)
 
-        size_4 = x.shape[-2:]
+        size_4 = x.size()
         x = self.E4(x)
-        ind4 = self.E_maxpool(x)
+        x, ind4 = self.E_maxpool(x)
 
-        size_5 = x.shape[-2:]
+        size_5 = x.size()
         x = self.E5(x)
-        ind5 = self.E_maxpool(x)
+        x, ind5 = self.E_maxpool(x)
 
 
         # Decoder
 
-        x = self.D_maxpool(x, ind5, output_size=size_5)
+        x = self.D_maxpool(x, indices=ind5, output_size=size_5)
         x = self.D1(x)
 
-        x = self.D_maxpool(x, ind4, output_size=size_4)
+        x = self.D_maxpool(x, indices=ind4, output_size=size_4)
         x = self.D2(x)
 
-        x = self.D_maxpool(x, ind3, output_size=size_3)
+        x = self.D_maxpool(x, indices=ind3, output_size=size_3)
         x = self.D3(x)
 
-        x = self.D_maxpool(x, ind2, output_size=size_2)
+        x = self.D_maxpool(x, indices=ind2, output_size=size_2)
         x = self.D4(x)
 
-        x = self.D_maxpool(x, ind1, output_size=size_1)
+        x = self.D_maxpool(x, indices=ind1, output_size=size_1)
         x = self.D5(x)
 
 
