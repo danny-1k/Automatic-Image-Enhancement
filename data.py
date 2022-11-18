@@ -143,10 +143,10 @@ class MaskData(Dataset):
 
         # the label is the difference between channels in the orignal and augumented images for different colorspaces
 
-        aug_img_hsv = np.asarray(aug_img)
-        original_img_hsv = np.asarray(original_img)
+        aug_img_hsv = cv2.cvtColor(np.asarray(aug_img), cv2.COLOR_RGB2HSV)
+        original_img_hsv = cv2.cvtColor(np.asarray(original_img), cv2.COLOR_RGB2HSV)
 
-        saturation_difference_channel = (original_img_hsv[:, :, 1] - aug_img_hsv[:, :, 1])/2
+        saturation_difference_channel = (original_img_hsv[:, :, 1] - aug_img_hsv[:, :, 1])/100
         brightness_difference_channel = (original_img_hsv[:, :, 2] - aug_img_hsv[:, :, 2])/255
 
         y = torch.from_numpy(np.stack([brightness_difference_channel, saturation_difference_channel, ], axis=0))
