@@ -26,7 +26,7 @@ class Trainer:
         self.model = trainer_params['model'].to(self.device)
         self.model_name = self.model.__class__.__name__
         self.optimizer = Adam(self.model.parameters(), lr=train_config['lr'])
-        self.scheduler = ReduceLROnPlateau(self.optimizer, mode='min')
+        self.scheduler = ReduceLROnPlateau(self.optimizer, mode='min', patience=2)
         self.lossfn = trainer_params['lossfn']
         self.run_name = trainer_params['run_name']
 
@@ -39,37 +39,37 @@ class Trainer:
         }
 
 
-    def train_epoch(self, trainloader):
-        self.model.train()
+    def train_epoch(self, trainloader, model, optimizer):
+        model.train()
 
         for x,y in trainloader:     
-            x = x.to(self.trainer_params['device'])
+            optimizer.zero_grad()
+            x = x.to(self.device)
             y = y.to(self.device)
 
-            p = self.model(x)
+            p = model(x)
             loss = self.lossfn(p, y)
 
             self.update_metrics(train=(1-.6)*self.metrics['train_loss'] + .6*loss.item())
                 
-            self.optimizer.zero_grad()
             loss.backward()
-            self.optimizer.step()
+            optimizer.step()
             
 
-    def test_epoch(self, testloader):
-        self.model.eval()
+    def test_epoch(self, testloader, model, scheduler):
+        model.eval()
         with torch.no_grad():
             for x,y in testloader:     
 
                 x = x.to(self.device)
                 y = y.to(self.device)
 
-                p = self.model(x)
+                p = model(x)
                 loss = self.lossfn(p, y)
 
                 self.update_metrics(test=(1-.6)*self.metrics['test_loss'] + .6*loss.item())
 
-            self.scheduler.step(loss.item())
+            scheduler.step(loss.item())
 
     def update_metrics(self, train=None, test=None):
         if train:
@@ -92,9 +92,9 @@ class Trainer:
     def tb_close_writer(self):
         self.writer.close()
 
-    def save_best(self):
+    def save_best(self, model):
         if self.metrics['test_loss'] < self.metrics['best_loss']:
-            torch.save(self.model.state_dict(), f'models/{self.model_name}/{self.run_name}/best.pt')
+            torch.save(model.state_dict(), f'models/{self.model_name}/{self.run_name}/best.pt')
             self.metrics['best_loss'] = self.metrics['test_loss']
         
 
@@ -117,12 +117,18 @@ class Trainer:
 
         train = DataLoader(traindata, batch_size=self.train_config['batch_size'], shuffle=True)
         test = DataLoader(testdata, batch_size=self.test_config['batch_size'], shuffle=True)
+        
+
+        model = self.model
+        optimizer = self.optimizer
+        scheduler = self.scheduler
+
 
         for epoch in tqdm(range(self.train_config['epochs'])):
 
-            self.train_epoch(train)
-            self.test_epoch(test)
+            self.train_epoch(train, model, optimizer)
+            self.test_epoch(test, model, scheduler)
 
             self.tb_write_metrics(epoch+1)
 
-            self.save_best()
+            self.save_best(model)
