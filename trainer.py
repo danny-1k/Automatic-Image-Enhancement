@@ -23,12 +23,11 @@ class Trainer:
         self.test_config = test_config
         self.trainer_params = trainer_params
         self.device = trainer_params['device']
-        self.model = trainer_params['model'].to(self.device)
-        self.model_name = self.model.__class__.__name__
-        self.optimizer = Adam(self.model.parameters(), lr=train_config['lr'])
-        self.scheduler = ReduceLROnPlateau(self.optimizer, mode='min', patience=2)
         self.lossfn = trainer_params['lossfn']
         self.run_name = trainer_params['run_name']
+
+        self.model = self.trainer_params['model'].to(self.device) #eventually won't use that much
+        self.model_name = self.model.__class__.__name__ #eventually won't use that much
 
         self.writer = SummaryWriter(f"runs/{self.run_name}")
 
@@ -51,7 +50,6 @@ class Trainer:
             loss = self.lossfn(p, y)
 
             self.update_metrics(train=(1-.6)*self.metrics['train_loss'] + .6*loss.item())
-                
             loss.backward()
             optimizer.step()
             
@@ -119,9 +117,10 @@ class Trainer:
         test = DataLoader(testdata, batch_size=self.test_config['batch_size'], shuffle=True)
         
 
-        model = self.model
-        optimizer = self.optimizer
-        scheduler = self.scheduler
+        model = self.trainer_params['model'].to(self.device)
+        self.model_name = model.__class__.__name__
+        optimizer = Adam(model.parameters(), lr=self.train_config['lr'])
+        scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=2)
 
 
         for epoch in tqdm(range(self.train_config['epochs'])):
