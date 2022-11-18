@@ -10,10 +10,13 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import cv2
 import numpy as np
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
 
 config = yaml.load(open('config.yml', 'r').read(), Loader=yaml.Loader)
 
 data_config = config['data_config']
+
 
 
 class ImageData(Dataset):
@@ -118,10 +121,21 @@ class MaskData(Dataset):
 
         if train:
             self.df = pd.read_csv('data/mask_data/train.csv').iloc[:subset]
-            self.transforms = transforms.vgg_train_transform
+
+            self.transforms = A.Compose([
+                A.HorizontalFlip(p=.3),
+                A.VerticalFlip(p=.5),
+                A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), p=1),
+                ToTensorV2(p=1)
+            ])
+
         else:
             self.df = pd.read_csv('data/generated/test.csv').iloc[:subset]
-            self.transforms = transforms.vgg_transform
+
+            self.transforms = A.Compose([
+                A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), p=1),
+                ToTensorV2(p=1)
+            ])
             
 
     
@@ -136,10 +150,8 @@ class MaskData(Dataset):
         original_img_path = point['original_img_path']
 
 
-        aug_img = data_utils.read_img(f'data/mask_data/images/{aug_img_id}.jpg')
-        original_img = data_utils.read_img(original_img_path)
-
-        x = self.transforms(aug_img)
+        aug_img = data_utils.read_img(f'data/mask_data/images/{aug_img_id}.jpg', (224, 224))
+        original_img = data_utils.read_img(original_img_path, (224, 224))
 
         # the label is the difference between channels in the orignal and augumented images for different colorspaces
 
@@ -149,7 +161,12 @@ class MaskData(Dataset):
         saturation_difference_channel = (original_img_hsv[:, :, 1] - aug_img_hsv[:, :, 1])/100
         brightness_difference_channel = (original_img_hsv[:, :, 2] - aug_img_hsv[:, :, 2])/255
 
-        y = torch.from_numpy(np.stack([brightness_difference_channel, saturation_difference_channel, ], axis=0))
+        y = np.stack([brightness_difference_channel, saturation_difference_channel, ], axis=0)
+
+        transformed = self.transforms(image=np.asarray(aug_img), mask=y)
+
+        x = transformed['image']
+        y = transformed['mask']
 
 
         return x, y
