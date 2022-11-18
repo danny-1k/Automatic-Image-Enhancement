@@ -246,7 +246,6 @@ class MobileNet(nn.Module):
 
     def forward(self, x):
         x = self.conv_layers(x)
-        print(x.shape)
         x = x.view(x.shape[0], -1)
         x = self.fc(x)
 
