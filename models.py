@@ -340,23 +340,23 @@ class MapModel(nn.Module):
 
         # Encoder
 
-        size_1 = x.shape()[-2:]
+        size_1 = x.shape[-2:]
         x = self.E1(x)
         ind1 = self.E_maxpool(x)
 
-        size_2 = x.shape()[-2:]
+        size_2 = x.shape[-2:]
         x = self.E2(x)
         ind2 = self.E_maxpool(x)
         
-        size_3 = x.shape()[-2:]
+        size_3 = x.shape[-2:]
         x = self.E3(x)
         ind3 = self.E_maxpool(x)
 
-        size_4 = x.shape()[-2:]
+        size_4 = x.shape[-2:]
         x = self.E4(x)
         ind4 = self.E_maxpool(x)
 
-        size_5 = x.shape()[-2:]
+        size_5 = x.shape[-2:]
         x = self.E5(x)
         ind5 = self.E_maxpool(x)
 
