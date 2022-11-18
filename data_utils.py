@@ -2,9 +2,11 @@ from PIL import Image, ImageEnhance
 import numpy as np
 from constants import *
 
-def read_img(img):
+def read_img(img, size=None):
     img = Image.open(img)
     img = img.convert('RGB') #ensure image is RGB
+    if size:
+        img = img.resize(size)
     return img
 
 def adjust_brightness(img, value):
