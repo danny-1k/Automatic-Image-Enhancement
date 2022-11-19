@@ -130,7 +130,7 @@ class MaskData(Dataset):
             ])
 
         else:
-            self.df = pd.read_csv('data/generated/test.csv').iloc[:subset]
+            self.df = pd.read_csv('data/mask_data/test.csv').iloc[:subset]
 
             self.transforms = A.Compose([
                 A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), p=1),
