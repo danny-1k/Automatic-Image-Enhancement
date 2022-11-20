@@ -4,7 +4,7 @@ import pickle
 import torch
 from torch.utils.data import DataLoader
 from torch.optim import Adam
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import ReduceLROnPlateau, ExponentialLR
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 from data import ImageData
@@ -25,6 +25,7 @@ class Trainer:
         self.device = trainer_params['device']
         self.lossfn = trainer_params['lossfn']
         self.run_name = trainer_params['run_name']
+        self.scheduler = trainer_params.get('scheduler')
 
         self.model = self.trainer_params['model'].to(self.device) #eventually won't use that much
         self.model_name = self.model.__class__.__name__ #eventually won't use that much
@@ -67,7 +68,10 @@ class Trainer:
 
                 self.update_metrics(test=(1-.6)*self.metrics['test_loss'] + .6*loss.item())
 
-            scheduler.step(loss.item())
+            if isinstance(scheduler, ExponentialLR):
+                scheduler.step()
+            else:
+                scheduler.step(loss.item())
 
     def update_metrics(self, train=None, test=None):
         if train:
@@ -120,7 +124,13 @@ class Trainer:
         model = self.trainer_params['model'].to(self.device)
         self.model_name = model.__class__.__name__
         optimizer = Adam(model.parameters(), lr=self.train_config['lr'])
-        scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=2)
+
+        if self.scheduler:
+            scheduler = self.scheduler(optimizer)
+
+        else:
+
+            scheduler = ExponentialLR(optimizer, gamma=.8)
 
 
         for epoch in tqdm(range(self.train_config['epochs'])):
