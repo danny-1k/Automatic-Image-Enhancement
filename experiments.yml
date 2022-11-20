@@ -1,0 +1,246 @@
+experiments:
+
+  global_params:
+    epochs: 10
+
+
+  smallnet_lr_0.1:
+    smallnet_lr_0.1_batch_size_8:
+      lr: 0.1
+      batch_size: 8
+
+    smallnet_lr_0.1_batch_size_16:
+      lr: 0.1
+      batch_size: 16
+
+    smallnet_lr_0.1_batch_size_32:
+      lr: 0.1
+      batch_size: 32
+
+    smallnet_lr_0.1_batch_size_64:
+      lr: 0.1
+      batch_size: 64
+
+
+    smallnet_lr_0.1_batch_size_128:
+      lr: 0.1
+      batch_size: 128
+
+  smallnet_lr_0.01:
+    smallnet_lr_0.01_batch_size_8:
+      lr: 0.01
+      batch_size: 8
+
+    smallnet_lr_0.01_batch_size_16:
+      lr: 0.01
+      batch_size: 16
+
+    smallnet_lr_0.01_batch_size_32:
+      lr: 0.01
+      batch_size: 32
+
+    smallnet_lr_0.01_batch_size_64:
+      lr: 0.01
+      batch_size: 64
+
+
+    smallnet_lr_0.01_batch_size_128:
+      lr: 0.01
+      batch_size: 128
+
+
+  smallnet_lr_0.001:
+    smallnet_lr_0.001_batch_size_8:
+      lr: 0.001
+      batch_size: 8
+
+    smallnet_lr_0.001_batch_size_16:
+      lr: 0.001
+      batch_size: 16
+
+    smallnet_lr_0.001_batch_size_32:
+      lr: 0.001
+      batch_size: 32
+
+    smallnet_lr_0.001_batch_size_64:
+      lr: 0.001
+      batch_size: 64
+
+    smallnet_lr_0.001_batch_size_128:
+      lr: 0.001
+      batch_size: 128
+
+
+  smallnet_lr_0.0001:
+    smallnet_lr_0.001_batch_size_8:
+      lr: 0.0001
+      batch_size: 8
+
+    smallnet_lr_0.001_batch_size_16:
+      lr: 0.0001
+      batch_size: 16
+
+    smallnet_lr_0.001_batch_size_32:
+      lr: 0.0001
+      batch_size: 32
+
+    smallnet_lr_0.001_batch_size_64:
+      lr: 0.0001
+      batch_size: 64
+
+    smallnet_lr_0.001_batch_size_128:
+      lr: 0.0001
+      batch_size: 128
+
+
+  smallnet2_lr_0.1:
+    smallnet2_lr_0.1_batch_size_8:
+      lr: 0.1
+      batch_size: 8
+
+    smallnet2_lr_0.1_batch_size_16:
+      lr: 0.1
+      batch_size: 16
+
+    smallnet2_lr_0.1_batch_size_32:
+      lr: 0.1
+      batch_size: 32
+
+    smallnet2_lr_0.1_batch_size_64:
+      lr: 0.1
+      batch_size: 64
+
+    smallnet2_lr_0.1_batch_size_128:
+      lr: 0.1
+      batch_size: 128
+
+
+  smallnet2_lr_0.01:
+    smallnet2_lr_0.01_batch_size_8:
+      lr: 0.01
+      batch_size: 8
+
+    smallnet2_lr_0.01_batch_size_16:
+      lr: 0.01
+      batch_size: 16
+
+    smallnet2_lr_0.01_batch_size_32:
+      lr: 0.01
+      batch_size: 32
+
+    smallnet2_lr_0.01_batch_size_64:
+      lr: 0.01
+      batch_size: 64
+
+    smallnet2_lr_0.01_batch_size_128:
+      lr: 0.01
+      batch_size: 128
+    
+
+  smallnet2_lr_0.001:
+    smallnet2_lr_0.001_batch_size_8:
+      lr: 0.001
+      batch_size: 8
+
+    smallnet2_lr_0.001_batch_size_16:
+      lr: 0.001
+      batch_size: 16
+
+    smallnet2_lr_0.001_batch_size_32:
+      lr: 0.001
+      batch_size: 32
+
+    smallnet2_lr_0.001_batch_size_64:
+      lr: 0.001
+      batch_size: 64
+
+    smallnet2_lr_0.001_batch_size_128:
+      lr: 0.001
+      batch_size: 128
+
+
+  smallnet2_lr_0.0001:
+    smallnet2_lr_0.0001_batch_size_8:
+      lr: 0.0001
+      batch_size: 8
+
+    smallnet2_lr_0.0001_batch_size_16:
+      lr: 0.0001
+      batch_size: 16
+
+    smallnet2_lr_0.0001_batch_size_32:
+      lr: 0.0001
+      batch_size: 32
+
+    smallnet2_lr_0.0001_batch_size_64:
+      lr: 0.0001
+      batch_size: 64
+
+    smallnet2_lr_0.0001_batch_size_128:
+      lr: 0.0001
+      batch_size: 128
+
+  map_lr_0.001:
+    map_lr_0.0001_batch_size_8:
+      lr: 0.001
+      batch_size: 8
+
+    map_lr_0.001_batch_size_16:
+      lr: 0.001
+      batch_size: 16
+
+    map_lr_0.001_batch_size_32:
+      lr: 0.001
+      batch_size: 32
+
+    map_lr_0.001_batch_size_64:
+      lr: 0.001
+      batch_size: 64
+
+    map_lr_0.001_batch_size_128:
+      lr: 0.001
+      batch_size: 128
+
+  
+  map_lr_0.0001:
+    map_lr_0.0001_batch_size_8:
+      lr: 0.0001
+      batch_size: 8
+
+    map_lr_0.0001_batch_size_16:
+      lr: 0.0001
+      batch_size: 16
+
+    map_lr_0.0001_batch_size_32:
+      lr: 0.0001
+      batch_size: 32
+
+    map_lr_0.0001_batch_size_64:
+      lr: 0.0001
+      batch_size: 64
+
+    map_lr_0.0001_batch_size_128:
+      lr: 0.0001
+      batch_size: 128
+
+
+  map_lr_0.00001:
+    map_lr_0.00001_batch_size_8:
+      lr: 0.00001
+      batch_size: 8
+
+    map_lr_0.00001_batch_size_16:
+      lr: 0.00001
+      batch_size: 16
+
+    map_lr_0.00001_batch_size_32:
+      lr: 0.00001
+      batch_size: 32
+
+    map_lr_0.00001_batch_size_64:
+      lr: 0.00001
+      batch_size: 64
+
+    map_lr_0.00001_batch_size_128:
+      lr: 0.00001
+      batch_size: 128
