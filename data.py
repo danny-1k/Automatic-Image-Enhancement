@@ -169,4 +169,4 @@ class MaskData(Dataset):
         y = transformed['mask']
 
 
-        return x, y
+        return x, y.float()
