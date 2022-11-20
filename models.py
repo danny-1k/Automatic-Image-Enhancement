@@ -395,7 +395,7 @@ class MapModel(nn.Module):
         return x
 
 class MapModelPretrainedVGG(nn.Module):
-    def __init__(self, output_channels=2):
+    def __init__(self, output_channels=2, use_batch_norm=True):
         super().__init__()
         feature_extractor = vgg16(pretrained=True).eval().requires_grad_(False).features
 
@@ -454,42 +454,42 @@ class MapModelPretrainedVGG(nn.Module):
 
         self.D1 = nn.Sequential(
             nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1),
-            nn.BatchNorm2d(512),
+            *([nn.BatchNorm2d(512)] if use_batch_norm else []),
             nn.ReLU(),
             nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1),
-            nn.BatchNorm2d(512),
+            *([nn.BatchNorm2d(512)] if use_batch_norm else []),
             nn.ReLU(),
         )
         self.D2 = nn.Sequential(
             nn.Conv2d(in_channels=512, out_channels=256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
+            *([nn.BatchNorm2d(256)] if use_batch_norm else []),
             nn.ReLU(),
             nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3, padding=1),
-            nn.BatchNorm2d(256),
+            *([nn.BatchNorm2d(256)] if use_batch_norm else []),
             nn.ReLU(),
         )
         self.D3 = nn.Sequential(
             nn.Conv2d(in_channels=256, out_channels=128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
+            *([nn.BatchNorm2d(128)] if use_batch_norm else []),
             nn.ReLU(),
             nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, padding=1),
-            nn.BatchNorm2d(128),
+            *([nn.BatchNorm2d(128)] if use_batch_norm else []),
             nn.ReLU(),
         )
         self.D4 = nn.Sequential(
             nn.Conv2d(in_channels=128, out_channels=64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
+            *([nn.BatchNorm2d(64)] if use_batch_norm else []),
             nn.ReLU(),
             nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
+            *([nn.BatchNorm2d(64)] if use_batch_norm else []),
             nn.ReLU(),
         )
         self.D5 = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
+            *([nn.BatchNorm2d(64)] if use_batch_norm else []),
             nn.ReLU(),
             nn.Conv2d(in_channels=64, out_channels=output_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(output_channels),
+            *([nn.BatchNorm2d(output_channels)] if use_batch_norm else []),
             nn.ReLU(),
         )
 
