@@ -395,9 +395,12 @@ class MapModel(nn.Module):
         return x
 
 class MapModelPretrainedVGG(nn.Module):
-    def __init__(self, output_channels=2, use_batch_norm=True):
+    def __init__(self, output_channels=2, use_batch_norm=True, freeze_encoder=True):
         super().__init__()
-        feature_extractor = vgg16(pretrained=True).eval().requires_grad_(False).features
+        feature_extractor = vgg16(pretrained=True)
+
+        if freeze_encoder:
+            feature_extractor = feature_extractor.eval().requires_grad_(False).features
 
         self.encoder_maxpool = nn.MaxPool2d(2,2, return_indices=True) # fuck vgg maxpool
         self.decoder_maxpool = nn.MaxUnpool2d(2,2)
@@ -409,14 +412,14 @@ class MapModelPretrainedVGG(nn.Module):
             feature_extractor[1],
             feature_extractor[2],
             feature_extractor[3],
-        ).eval().requires_grad_(False)
+        )
 
         self.E2 = nn.Sequential(
             feature_extractor[5],
             feature_extractor[6],
             feature_extractor[7],
             feature_extractor[8],
-        ).eval().requires_grad_(False)
+        )
 
         self.E3 = nn.Sequential(
             feature_extractor[10],
@@ -425,7 +428,7 @@ class MapModelPretrainedVGG(nn.Module):
             feature_extractor[13],
             feature_extractor[14],
             feature_extractor[15],
-        ).eval().requires_grad_(False)
+        )
 
         self.E4 = nn.Sequential(
             feature_extractor[17],
@@ -434,7 +437,7 @@ class MapModelPretrainedVGG(nn.Module):
             feature_extractor[20],
             feature_extractor[21],
             feature_extractor[22],
-        ).eval().requires_grad_(False)
+        )
 
         self.E5 = nn.Sequential(
             feature_extractor[24],
@@ -443,7 +446,15 @@ class MapModelPretrainedVGG(nn.Module):
             feature_extractor[27],
             feature_extractor[28],
             feature_extractor[29],
-        ).eval().requires_grad_(False)
+        )
+
+        if freeze_encoder:
+            self.E1 = self.E1.eval().requires_grad_(False)
+            self.E2 = self.E2.eval().requires_grad_(False)
+            self.E3 = self.E3.eval().requires_grad_(False)
+            self.E4 = self.E4.eval().requires_grad_(False)
+            self.E5 = self.E5.eval().requires_grad_(False)
+
 
 
 
@@ -490,7 +501,7 @@ class MapModelPretrainedVGG(nn.Module):
             nn.ReLU(),
             nn.Conv2d(in_channels=64, out_channels=output_channels, kernel_size=3, padding=1),
             *([nn.BatchNorm2d(output_channels)] if use_batch_norm else []),
-            nn.ReLU(),
+            nn.Sigmoid(),
         )
 
 
