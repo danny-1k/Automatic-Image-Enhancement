@@ -10,3 +10,4 @@ test_selector.py
 todo.txt
 runs
 models
+*.pt
