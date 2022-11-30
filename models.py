@@ -397,10 +397,10 @@ class MapModel(nn.Module):
 class MapModelPretrainedVGG(nn.Module):
     def __init__(self, output_channels=2, use_batch_norm=True, freeze_encoder=True):
         super().__init__()
-        feature_extractor = vgg16(pretrained=True)
+        feature_extractor = vgg16(pretrained=True).features
 
         if freeze_encoder:
-            feature_extractor = feature_extractor.eval().requires_grad_(False).features
+            feature_extractor = feature_extractor.eval().requires_grad_(False)
 
         self.encoder_maxpool = nn.MaxPool2d(2,2, return_indices=True) # fuck vgg maxpool
         self.decoder_maxpool = nn.MaxUnpool2d(2,2)

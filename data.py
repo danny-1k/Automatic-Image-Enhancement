@@ -124,7 +124,6 @@ class MaskData(Dataset):
 
             self.transforms = A.Compose([
                 A.HorizontalFlip(p=.3),
-                A.VerticalFlip(p=.5),
                 A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), p=1),
                 ToTensorV2(p=1)
             ])
