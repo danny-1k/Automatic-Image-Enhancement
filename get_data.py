@@ -6,8 +6,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from PIL import Image
 
-Image.frombytes()
-
 config = yaml.load(open('config.yml', 'r').read(), loader=yaml.Loader)['data_config']
 
 def download_photo(url, dataset):
