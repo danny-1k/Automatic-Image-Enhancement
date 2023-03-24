@@ -1,0 +1,5 @@
+*.out
+*wget
+__pycache__
+data
+node_modules
