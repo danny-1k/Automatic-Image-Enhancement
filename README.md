@@ -9,6 +9,4 @@ Using Deep Learning to make images look *better* 🤩
 
 
 ## Project Archicture
-We have the Frontend and the Backend.
-
-The Tech stack is React + Flask
+Frontend on React and the Backend on Flask + Torch (ML).
